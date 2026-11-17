@@ -14,6 +14,7 @@
 - **Test**: `src/tests/test_orchestrator_handoff.py`.
 - **CP4**: rà trace + stdout của cả 3 shape cho must-pass "không lộ `CANARY_SECRET_*`".
 - **Báo cáo**: mục 3.3 (Shape C) trong `report/team/group_report.md` và đoạn "Trace và bằng chứng" cho `report/team/decision_adr.md` (gửi nhóm trưởng ghép).
+- **Bonus B4 (variants)**: `src/bonus/swarm_pruned.py`, `src/bonus/workflow_ablate.py`, `src/tests/test_bonus_variants.py` — 2 biến thể + 2 ablation cho baseline công bằng.
 
 ## 3. Đóng góp cụ thể
 
@@ -36,6 +37,9 @@ Quyết định kỹ thuật chính:
 4. **Không bắt `InjectedCrash`**: để crash thật nổi ra ngoài cho T12 kiểm, không "làm im" lỗi.
 5. **Thứ tự `allowed_tools`**: `lookup_order` → `lookup_policy` → `compute_compensation`, vì `compute_compensation` chỉ chạy khi `lookup_order` đã có kết quả.
 
+Nhánh `feat/bonus-variants` (PR #19): `ade5e01` thêm `swarm_pruned` (prune peer/parse p=0.5 theo
+`random.Random(f"{seed}:{claim_id}")`) và 2 ablation `wf_no_needs_info` / `wf_no_zero_guard` + 4 test;
+`1488547` bổ sung hidden selfcheck và mốc thời gian audit vào chính báo cáo này.
 ## 4. Bằng chứng
 
 - Test riêng: `src/tests/test_orchestrator_handoff.py` — 2 test pass (`handoff` trong trace ⊆ `ALLOWED_FIELDS`, `allowed_tools ⊆ READONLY_TOOLS`, `facts == {}`, không `CANARY_SECRET_`/`parent_secret`; trace đúng contract trên 4 nhánh).
@@ -46,6 +50,11 @@ Quyết định kỹ thuật chính:
 - Hidden selfcheck (`src/reports/hidden_selfcheck.json`, 40 claim × 5 seed): orchestrator **200/200 trial, 0 error, 0 leak_suspect**, cost tổng **9.700 VND** (cao nhất trong 3 shape, do 4,85 tool call/trial); status trùng workflow và single trên toàn bộ 200 cặp (claim, seed): 90 resolved · 95 denied · 5 needs_info · 10 escalated.
 - Run id mẫu: `R-orchestrator-C-001-s11` (resolved, ledger 35.000), `R-orchestrator-C-013-s11` (denied + `policy_denied: order_already_refunded`, ledger 0), `R-orchestrator-C-014-s11` (proposal 150.000, ledger 120.000).
 
+- Bonus B4: `pytest -q tests/test_bonus_variants.py` → **4 passed**; cổng host **106 passed**.
+  Benchmark 5 shape × 70 trial: workflow 1.000/27.86 · swarm 0.986/49.57 · **swarm_pruned 0.986/48.90**
+  · **wf_no_needs_info 0.929/30.77** · **wf_no_zero_guard 1.000/27.86** (bỏ zero-guard không đổi metric
+  vì host vẫn chặn `non_positive_amount`).
+- `src/reports/bonus_variants.json`: 350 dòng `trials[]` (5 shape × 14 claim × 5 seed) cho McNemar cặp (claim, seed).
 ## 5. Công cụ AI đã dùng
 
 - **Trợ lý AI (DeepSeek Harness)**: dùng để (a) đọc và đối chiếu bộ tài liệu (README, CHECKPOINTS, business_rules, contracts, architecture), (b) soạn khung code và test theo đúng docstring/hợp đồng của đề, (c) chẩn đoán lỗi môi trường (sandbox PowerShell, quoting khi truyền `python -c`), (d) soạn checklist và báo cáo.
@@ -57,3 +66,5 @@ Quyết định kỹ thuật chính:
 **Điểm mạnh**: shape C hoàn chỉnh đủ 5 nhánh (`failed`/`needs_info`/`escalated`/`denied`/`resolved`), giữ đúng ranh giới code–model, trace tối giản và có test bảo vệ; phần audit CP4 cho bằng chứng định lượng (255 trace, 0 vi phạm) thay vì chỉ nói suông.
 
 **Điểm cần cải thiện**: lần mở PR đầu tiên tôi để GitHub chọn base repository mặc định nên PR đi nhầm sang repo của ban tổ chức (đã đóng #133/#134); tôi cũng merge PR trước khi đồng bộ `main` nên phải chạy lại ma trận sau merge. Lần sau: kiểm dropdown `base repository` trước khi tạo PR và sync `main` vào nhánh **trước** khi merge. Ngoài ra phần code được AI hỗ trợ nhiều, nên tôi vẫn cần tự viết lại từ đầu ít nhất một lần để chắc mình giải thích được từng nhánh khi bị hỏi.
+Phần bonus B4 giúp tôi thấy rõ một bước "kiểm tra" trong shape có thể **thừa** khi host đã chặn cùng điều kiện:
+bỏ guard `quote <= 0` không đổi pass rate, còn bỏ guard `needs_info` thì tụt 0.929.
