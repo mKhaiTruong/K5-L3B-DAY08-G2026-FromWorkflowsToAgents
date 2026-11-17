@@ -51,7 +51,7 @@ def _run(
     seed: int,
     crash_at: str | None,
 ) -> RunResult:
-    """Scaffold T1: budget, run_id, trace, tool cost. T2-T7 fills the decision branches."""
+    """Run one claim: early exits, handoff, investigators, quote, then the host write."""
     budget = Budget()
     run_id = make_run_id("orchestrator", claim_id, seed)
     trace = Trace(run_id)
@@ -116,6 +116,7 @@ def _run(
         },
     )
     if not order_view.get("visible"):
+        trace.add("decision", {"status": "escalated", "reason": order_view.get("reason")})
         return finish(
             conn,
             shape="orchestrator",
