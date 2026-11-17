@@ -42,7 +42,8 @@ Quyết định kỹ thuật chính:
 - Ma trận student: `python -m pytest -q -m student -o addopts=` → **248 passed** (62/62 của shape C; T11 + T12 nằm trong đó).
 - Cổng host: `python -m pytest -q` → **102 passed, 0 failed** (sau khi merge main có `crash.json` + test CP4 của P1).
 - Crash: `src/reports/crash.json` → `crash_safety: "20/20"`.
-- Audit bảo mật CP4 (255 file trace của 4 shape): **0** vi phạm `CANARY_SECRET_`/`parent_secret`/`raw_headers`, **0** chứa SĐT `0901…`/địa chỉ/ghi chú nội bộ/tên hàng, **0** file phụ sai tên `^R-`, **0** lệnh `print(` trong `lab8/shapes/`; stdout claim C-010 sạch trên cả 3 shape.
+- Audit bảo mật CP4 (255 file trace của 4 shape, quét lúc 12:05 17/11 trên nhánh sau merge `d0ab363`): **0** vi phạm `CANARY_SECRET_`/`parent_secret`/`raw_headers`, **0** chứa SĐT `0901…`/địa chỉ/ghi chú nội bộ/tên hàng, **0** file phụ sai tên `^R-`, **0** lệnh `print(` trong `lab8/shapes/`; stdout claim C-010 sạch trên cả 3 shape.
+- Hidden selfcheck (`src/reports/hidden_selfcheck.json`, 40 claim × 5 seed): orchestrator **200/200 trial, 0 error, 0 leak_suspect**, cost tổng **9.700 VND** (cao nhất trong 3 shape, do 4,85 tool call/trial); status trùng workflow và single trên toàn bộ 200 cặp (claim, seed): 90 resolved · 95 denied · 5 needs_info · 10 escalated.
 - Run id mẫu: `R-orchestrator-C-001-s11` (resolved, ledger 35.000), `R-orchestrator-C-013-s11` (denied + `policy_denied: order_already_refunded`, ledger 0), `R-orchestrator-C-014-s11` (proposal 150.000, ledger 120.000).
 
 ## 5. Công cụ AI đã dùng
