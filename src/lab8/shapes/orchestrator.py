@@ -22,6 +22,7 @@ import sqlite3
 
 from lab8.db import connect
 from lab8.handoff import make_handoff
+from lab8.runtime import run_readonly_investigators
 from lab8.schemas import Budget, RunResult, make_run_id
 from lab8.shapes.common import finish, safe_dump
 from lab8.tools import get_claim_view, tool_cost
@@ -97,6 +98,34 @@ def _run(
         allowed_tools=["lookup_order", "lookup_policy", "compute_compensation"],
     )
     trace.add("handoff", safe_dump(handoff))
+
+    # T4: read-only investigators run inside the handoff scope. They never get the
+    # parent context, a write tool, or the ticket text.
+    investigated = run_readonly_investigators(
+        conn, budget, handoff, principal_id=claim["principal_id"]
+    )
+    order_view = investigated["tools"].get("lookup_order") or {}
+    policies = (investigated["tools"].get("lookup_policy") or {}).get("policies") or []
+    trace.add(
+        "investigator",
+        {
+            "visible": bool(order_view.get("visible")),
+            "reason": order_view.get("reason"),
+            "policy_count": len(policies),
+        },
+    )
+    if not order_view.get("visible"):
+        return finish(
+            conn,
+            shape="orchestrator",
+            claim_id=claim_id,
+            seed=seed,
+            status="escalated",
+            proposal_amount=0,
+            budget=budget,
+            trace=trace,
+            error_reason=order_view.get("reason"),
+        )
 
     return finish(
         conn,
