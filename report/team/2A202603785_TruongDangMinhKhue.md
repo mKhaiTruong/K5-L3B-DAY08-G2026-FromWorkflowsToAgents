@@ -4,7 +4,7 @@
 
 - Họ tên: Trương Đặng Minh Khuê
 - MSSV: 2A202603785
-- Email: minhkhai0402@gmail.com
+- Email: 26ai.khuetdm@vinuni.edu.vn
 - GitHub: https://github.com/mKhaiTruong
 
 ## 2. Phần việc phụ trách
