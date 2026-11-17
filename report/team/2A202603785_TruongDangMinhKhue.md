@@ -55,4 +55,16 @@ Công cụ, dùng vào việc gì, và bạn đã tự kiểm tra kết quả th
 
 ## 6. Tự đánh giá
 
-...
+**Làm tốt:**
+- Vai lead: lần đầu dùng PR chuẩn chỉnh, cảm giác rất tốt, hiểu cách merge branch rõ ràng hơn. Teammate giao tiếp cũng tốt. Tự đánh giá cao, mọi việc trơn tru.
+- Ranh giới checkpoint: nói thật là mình không biết chắc, vì mình không phải chuyên gia. Nhưng với nhiều test case để kiểm tra như vậy, với mình làm vậy luôn là đúng đắn.
+- Hiểu bộ test 62/62 và crash 20/20 là để kiểm tra code có đúng nghiệp vụ và chịu được crash hay không.
+
+**Chưa tốt / cần cải thiện:**
+- PR #1 (chia việc CP1) mình để mở cho teammate đọc. Sau mới hiểu PR kiểu chia việc có thể merge ngay, để `main` luôn có thông tin mới nhất.
+- Lúc đầu nhờ AI giải thích, nó dùng nhiều từ nghiệp vụ bằng tiếng Anh rất khó hiểu. Mình phải nhờ nó liệt kê keywords và giải thích từng cái, sau đó đề bài sáng hơn hẳn.
+
+**Học được:**
+- Testing: cách người ta làm việc thực tế.
+- Git và GitHub.
+- Hiểu tại sao trong bài này, 1 agent hoặc workflow đơn giản lại tốt hơn multi-agent (MAS): đúng ngang nhau nhưng rẻ hơn và ổn định hơn.
