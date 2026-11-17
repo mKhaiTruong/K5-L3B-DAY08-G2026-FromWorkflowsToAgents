@@ -54,7 +54,7 @@ Nhánh `feat/bonus-variants` (PR #19): `ade5e01` thêm `swarm_pruned` (prune pee
   Benchmark 5 shape × 70 trial: workflow 1.000/27.86 · swarm 0.986/49.57 · **swarm_pruned 0.986/48.90**
   · **wf_no_needs_info 0.929/30.77** · **wf_no_zero_guard 1.000/27.86** (bỏ zero-guard không đổi metric
   vì host vẫn chặn `non_positive_amount`).
-- `src/reports/bonus_variants.json`: 350 dòng `trials[]` (5 shape × 14 claim × 5 seed) cho McNemar cặp (claim, seed).
+- `src/reports/bonus_benchmark.json`: 350 dòng `trials[]` (5 shape × 14 claim × 5 seed) cho McNemar cặp (claim, seed).
 ## 5. Công cụ AI đã dùng
 
 - **Trợ lý AI (DeepSeek Harness)**: dùng để (a) đọc và đối chiếu bộ tài liệu (README, CHECKPOINTS, business_rules, contracts, architecture), (b) soạn khung code và test theo đúng docstring/hợp đồng của đề, (c) chẩn đoán lỗi môi trường (sandbox PowerShell, quoting khi truyền `python -c`), (d) soạn checklist và báo cáo.
