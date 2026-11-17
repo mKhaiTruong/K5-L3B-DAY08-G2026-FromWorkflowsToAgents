@@ -110,3 +110,92 @@ def test_crash_propagates_and_flushes_trace(public_db):
     trace_path = Path("traces") / f"{make_run_id('workflow', 'C-012', 11)}.json"
     events = json.loads(trace_path.read_text(encoding="utf-8"))["events"]
     assert any(e.get("kind") == "crash" for e in events)
+
+
+# --- CP4: approval branches through run_claim (host gate, not the shape) -----
+
+
+def _add_claim(conn, claim_id, order_id, approval_id, *, principal="P-100"):
+    conn.execute(
+        "INSERT INTO claims (claim_id, principal_id, order_id, ticket, parent_secret, raw_headers_json, approval_id) "
+        "VALUES (?, ?, ?, 'test', 'CANARY_SECRET_PARENT_T', '{}', ?)",
+        (claim_id, principal, order_id, approval_id),
+    )
+
+
+def _add_approval(conn, approval_id, claim_id, amount, status="valid", expires="2027-12-31"):
+    conn.execute(
+        "INSERT INTO approvals (approval_id, claim_id, approved_vnd, status, expires_at) VALUES (?, ?, ?, ?, ?)",
+        (approval_id, claim_id, amount, status, expires),
+    )
+
+
+def _seed(store: Path, *, claims=(), approvals=()) -> None:
+    conn = connect(store)
+    try:
+        for approval in approvals:
+            _add_approval(conn, *approval)
+        for claim in claims:
+            _add_claim(conn, *claim)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _assert_host_denied(store: Path, result, reason: str, proposal: int = 35000) -> None:
+    """Check quote > 0 but host refused: denied, full quote kept, no ledger, policy_denied audit."""
+    assert result.status == "denied"
+    assert result.error_reason == reason
+    assert result.proposal_amount == proposal
+    assert result.refund_effects == []
+    assert result.committed_audit_count == 0
+    assert _audit_count(store, result.claim_id, "policy_denied") >= 1
+
+
+def test_expired_approval_is_denied(public_db):
+    result = workflow.run_claim("C-007", seed=11, store_path=str(public_db))
+
+    _assert_host_denied(public_db, result, "approval_expired")
+
+
+def test_revoked_approval_is_denied_even_with_a_spare_valid_one(public_db):
+    _seed(
+        public_db,
+        approvals=[("A-WF-REVOKED", "C-WF-RV", 35000, "revoked"), ("A-WF-SPARE", "C-WF-RV", 35000, "valid")],
+        claims=[("C-WF-RV", "O-909", "A-WF-REVOKED")],
+    )
+    result = workflow.run_claim("C-WF-RV", seed=11, store_path=str(public_db))
+
+    _assert_host_denied(public_db, result, "approval_revoked")
+
+
+def test_approval_of_another_claim_is_denied(public_db):
+    _seed(public_db, claims=[("C-WF-BORROW", "O-808", "A-001")])
+    result = workflow.run_claim("C-WF-BORROW", seed=11, store_path=str(public_db))
+
+    _assert_host_denied(public_db, result, "approval_claim_mismatch")
+
+
+def test_claim_without_approval_is_denied(public_db):
+    _seed(public_db, claims=[("C-WF-NOAPP", "O-107", None)])
+    result = workflow.run_claim("C-WF-NOAPP", seed=11, store_path=str(public_db))
+
+    _assert_host_denied(public_db, result, "missing_approval")
+
+
+def test_fully_refunded_order_is_denied(public_db):
+    result = workflow.run_claim("C-013", seed=11, store_path=str(public_db))
+
+    _assert_host_denied(public_db, result, "order_already_refunded")
+
+
+# --- CP4: trace and stdout carry no raw claim/order rows ----------------------
+
+
+@pytest.mark.parametrize("claim_id", sorted(BY_ID))
+def test_trace_and_stdout_have_no_forbidden_substrings(public_db, capsys, claim_id):
+    result = workflow.run_claim(claim_id, seed=11, store_path=str(public_db))
+
+    blob = Path(result.trace_path).read_text(encoding="utf-8") + capsys.readouterr().out
+    for secret in BY_ID[claim_id]["expected"]["forbid_substrings"] + ["CANARY_SECRET", "Bearer"]:
+        assert secret not in blob, f"{secret!r} leaked for {claim_id}"
