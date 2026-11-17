@@ -82,7 +82,7 @@ Trace ghi các event `shape`, `handoff` (đã sanitize qua `safe_dump`), `invest
 
 Về mức tự chủ so với ba shape còn lại: A là pipeline bước cố định hoàn toàn do code, B là một agent ReAct tối đa 8 bước, C tách vai điều phối và điều tra rồi vẫn để code quyết tiền, D là swarm nhiều peer. C nằm giữa B và D về số điểm tự chủ nhưng giữ nguyên nguyên tắc: model chỉ đọc và soạn chữ, host mới ghi tiền.
 
-Kiểm tra: 62 test student của shape C pass; `src/tests/test_orchestrator_handoff.py` có 2 test (handoff trong trace ⊆ `ALLOWED_FIELDS` và `allowed_tools ⊆ READONLY_TOOLS`; trace đúng contract trên 4 nhánh `needs_info`/`escalated`/`denied`/`resolved`). Audit bảo mật toàn nhóm: 252 file trace, 0 vi phạm secret/PII, 0 file phụ sai tên.
+Kiểm tra: 62 test student của shape C pass; `src/tests/test_orchestrator_handoff.py` có 2 test (handoff trong trace ⊆ `ALLOWED_FIELDS` và `allowed_tools ⊆ READONLY_TOOLS`; trace đúng contract trên 4 nhánh `needs_info`/`escalated`/`denied`/`resolved`). Audit bảo mật toàn nhóm: 255 file trace, 0 vi phạm secret/PII, 0 file phụ sai tên.
 
 ...
 

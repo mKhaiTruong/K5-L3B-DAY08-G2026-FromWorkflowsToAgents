@@ -42,7 +42,7 @@ Quyết định kỹ thuật chính:
 - Ma trận student: `python -m pytest -q -m student -o addopts=` → **248 passed** (62/62 của shape C; T11 + T12 nằm trong đó).
 - Cổng host: `python -m pytest -q` → **102 passed, 0 failed** (sau khi merge main có `crash.json` + test CP4 của P1).
 - Crash: `src/reports/crash.json` → `crash_safety: "20/20"`.
-- Audit bảo mật CP4 (252 file trace của 4 shape): **0** vi phạm `CANARY_SECRET_`/`parent_secret`/`raw_headers`, **0** chứa SĐT `0901…`/địa chỉ/ghi chú nội bộ/tên hàng, **0** file phụ sai tên `^R-`, **0** lệnh `print(` trong `lab8/shapes/`; stdout claim C-010 sạch trên cả 3 shape.
+- Audit bảo mật CP4 (255 file trace của 4 shape): **0** vi phạm `CANARY_SECRET_`/`parent_secret`/`raw_headers`, **0** chứa SĐT `0901…`/địa chỉ/ghi chú nội bộ/tên hàng, **0** file phụ sai tên `^R-`, **0** lệnh `print(` trong `lab8/shapes/`; stdout claim C-010 sạch trên cả 3 shape.
 - Run id mẫu: `R-orchestrator-C-001-s11` (resolved, ledger 35.000), `R-orchestrator-C-013-s11` (denied + `policy_denied: order_already_refunded`, ledger 0), `R-orchestrator-C-014-s11` (proposal 150.000, ledger 120.000).
 
 ## 5. Công cụ AI đã dùng
@@ -53,6 +53,6 @@ Quyết định kỹ thuật chính:
 
 ## 6. Tự đánh giá
 
-**Điểm mạnh**: shape C hoàn chỉnh đủ 5 nhánh (`failed`/`needs_info`/`escalated`/`denied`/`resolved`), giữ đúng ranh giới code–model, trace tối giản và có test bảo vệ; phần audit CP4 cho bằng chứng định lượng (252 trace, 0 vi phạm) thay vì chỉ nói suông.
+**Điểm mạnh**: shape C hoàn chỉnh đủ 5 nhánh (`failed`/`needs_info`/`escalated`/`denied`/`resolved`), giữ đúng ranh giới code–model, trace tối giản và có test bảo vệ; phần audit CP4 cho bằng chứng định lượng (255 trace, 0 vi phạm) thay vì chỉ nói suông.
 
 **Điểm cần cải thiện**: lần mở PR đầu tiên tôi để GitHub chọn base repository mặc định nên PR đi nhầm sang repo của ban tổ chức (đã đóng #133/#134); tôi cũng merge PR trước khi đồng bộ `main` nên phải chạy lại ma trận sau merge. Lần sau: kiểm dropdown `base repository` trước khi tạo PR và sync `main` vào nhánh **trước** khi merge. Ngoài ra phần code được AI hỗ trợ nhiều, nên tôi vẫn cần tự viết lại từ đầu ít nhất một lần để chắc mình giải thích được từng nhánh khi bị hỏi.
