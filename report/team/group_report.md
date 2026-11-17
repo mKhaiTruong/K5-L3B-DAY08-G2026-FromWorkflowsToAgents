@@ -83,6 +83,41 @@ Trace ghi các event `action`, `observation`, `decision`, `result`, `error`, `cr
 
 Kiểm tra: 62 test student của shape B pass; `src/tests/test_single_extra.py` có 19 test (tool đọc và giới hạn 8 bước, không tin ticket, 7 nhánh approval, T11, T12 ở 3 điểm crash). Ablation swarm so với single nằm ở `report/team/research_card.md` và `src/reports/ablation_r2.json`.
 
+### 3.3 Shape C — orchestrator + investigator chỉ đọc, phụ trách: Phong
+
+File: `src/lab8/shapes/orchestrator.py`. Shape C chia làm hai tầng: **orchestrator** (điều phối, là nơi duy nhất gọi host ghi tiền) và **investigator** (chỉ đọc, chạy đúng các tool được cấp trong handoff). Orchestrator không đọc DB thô; mọi dữ liệu đi qua allowlist của tool đọc.
+
+Luồng xử lý một claim:
+
+| Bước | Hành động | Đầu vào | Đầu ra |
+| --- | --- | --- | --- |
+| 1 | `get_claim_view` | `claim_id` | `claim_id`, `principal_id`, `order_id` (không có `parent_secret`) |
+| 2 | Rẽ nhánh sớm | claim view | claim không tồn tại → `failed`; thiếu `order_id` → `needs_info`, không ghi ledger |
+| 3 | `make_handoff` | `claim_id`, 3 tool đọc | `handoff.v1`: 8 field allowlist, `facts={}`, `principal_scope="owner_order_only"` |
+| 4 | `run_readonly_investigators` | handoff + `principal_id` | `lookup_order`, `lookup_policy`, `compute_compensation`; đơn không visible → `escalated` |
+| 5 | Quote từ order view của investigator | order qua allowlist | `amount_vnd`; quote ≤ 0 → `denied`, **không** gọi host |
+| 6 | `durability.issue_refund` | **quote đầy đủ** + `crash_at` | `conflict` → `failed`; host từ chối → `denied` (có audit `policy_denied`); ok → `resolved`. `proposal_amount` luôn là quote |
+| 7 | `finish()` | kết quả bước 6 | `RunResult` + file trace |
+
+Ranh giới code và model:
+
+| Việc | Ai quyết |
+| --- | --- |
+| Dữ liệu nào được qua ranh giới | `make_handoff` + `ALLOWED_FIELDS`/`FACT_KEYS` (code) |
+| Investigator được chạy tool nào | `READONLY_TOOLS`; `run_readonly_investigators(worker=True)` ném `ToolRejected` với tool ghi |
+| Số ngày trễ, trạng thái đơn, quyền sở hữu đơn | order row trong DB, không lấy từ ticket |
+| Số tiền | `compute_compensation` (code), policy cũ hoặc tương lai tự bị loại |
+| Approval, trần theo đơn, idempotency, ghi ledger | Host (`durability.issue_refund`) |
+| Câu chữ trả lời khách | MockLLM (nếu dùng); model không có tool ghi |
+
+Cách handoff được sanitize: handoff chỉ gồm field trong `ALLOWED_FIELDS`, `facts` bị lọc theo `FACT_KEYS`, `principal_scope` gán cứng `owner_order_only`, và `allowed_tools` bị chặn nếu chứa tool ghi. `sanitize()` là chốt cuối: nếu payload còn `CANARY_SECRET_`, `parent_secret` hay `raw_headers` thì ném `HandoffError`. Tóm tắt nội dung cha bằng LLM **không** được dùng thay redaction — chỉ allowlist trong code.
+
+Trace ghi các event `shape`, `handoff` (đã sanitize qua `safe_dump`), `investigator` (`visible`, `reason`, `policy_count`), `quote`, `decision` (`status`, `reason`). Cố ý không ghi: nội dung ticket, claim row (`parent_secret`, `raw_headers`), order row thô (SĐT, địa chỉ, ghi chú nội bộ, tên hàng). Mọi nhánh `return` — kể cả `needs_info` và `escalated` — đều đi qua `finish()` nên trace luôn được ghi; khi crash, `InjectedCrash` được ném ra ngoài, không bị nuốt.
+
+Về mức tự chủ so với ba shape còn lại: A là pipeline bước cố định hoàn toàn do code, B là một agent ReAct tối đa 8 bước, C tách vai điều phối và điều tra rồi vẫn để code quyết tiền, D là swarm nhiều peer. C nằm giữa B và D về số điểm tự chủ nhưng giữ nguyên nguyên tắc: model chỉ đọc và soạn chữ, host mới ghi tiền.
+
+Kiểm tra: 62 test student của shape C pass; `src/tests/test_orchestrator_handoff.py` có 2 test (handoff trong trace ⊆ `ALLOWED_FIELDS` và `allowed_tools ⊆ READONLY_TOOLS`; trace đúng contract trên 4 nhánh `needs_info`/`escalated`/`denied`/`resolved`). Audit bảo mật toàn nhóm: 255 file trace, 0 vi phạm secret/PII, 0 file phụ sai tên.
+
 ...
 
 ## 4. Kết quả
