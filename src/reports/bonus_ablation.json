@@ -54,28 +54,6 @@
       ],
       "ci_degenerate": true
     },
-    "orchestrator": {
-      "trials": 70,
-      "claims": 14,
-      "passes": 70,
-      "pass_rate": 1.0,
-      "ci95": [
-        1.0,
-        1.0
-      ],
-      "ci_degenerate": true
-    },
-    "single": {
-      "trials": 70,
-      "claims": 14,
-      "passes": 70,
-      "pass_rate": 1.0,
-      "ci95": [
-        1.0,
-        1.0
-      ],
-      "ci_degenerate": true
-    },
     "swarm": {
       "trials": 70,
       "claims": 14,
@@ -86,35 +64,42 @@
         1.0
       ],
       "ci_degenerate": false
+    },
+    "swarm_pruned": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 69,
+      "pass_rate": 0.9857142857142858,
+      "ci95": [
+        0.9571428571428572,
+        1.0
+      ],
+      "ci_degenerate": false
+    },
+    "wf_no_needs_info": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 65,
+      "pass_rate": 0.9285714285714286,
+      "ci95": [
+        0.7857142857142857,
+        1.0
+      ],
+      "ci_degenerate": false
+    },
+    "wf_no_zero_guard": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 70,
+      "pass_rate": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "ci_degenerate": true
     }
   },
   "comparisons": [
-    {
-      "baseline": "workflow",
-      "other": "orchestrator",
-      "pairs": 70,
-      "unpaired": 0,
-      "both_pass": 70,
-      "both_fail": 0,
-      "a_pass_b_fail": 0,
-      "a_fail_b_pass": 0,
-      "p_value": 1.0,
-      "test": "mcnemar_exact_two_sided",
-      "conclusion": "workflow va orchestrator: ket qua giong het tren 70 cap, khong co cap khac nhau nen khong co gi de kiem dinh."
-    },
-    {
-      "baseline": "workflow",
-      "other": "single",
-      "pairs": 70,
-      "unpaired": 0,
-      "both_pass": 70,
-      "both_fail": 0,
-      "a_pass_b_fail": 0,
-      "a_fail_b_pass": 0,
-      "p_value": 1.0,
-      "test": "mcnemar_exact_two_sided",
-      "conclusion": "workflow va single: ket qua giong het tren 70 cap, khong co cap khac nhau nen khong co gi de kiem dinh."
-    },
     {
       "baseline": "workflow",
       "other": "swarm",
@@ -127,6 +112,45 @@
       "p_value": 1.0,
       "test": "mcnemar_exact_two_sided",
       "conclusion": "workflow vs swarm: p=1.0000 >= 0.05 tren 1 cap khac nhau. Chua du bang chung de noi hai shape khac nhau; day khong chung minh hai shape bang nhau."
+    },
+    {
+      "baseline": "workflow",
+      "other": "swarm_pruned",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 69,
+      "both_fail": 0,
+      "a_pass_b_fail": 1,
+      "a_fail_b_pass": 0,
+      "p_value": 1.0,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow vs swarm_pruned: p=1.0000 >= 0.05 tren 1 cap khac nhau. Chua du bang chung de noi hai shape khac nhau; day khong chung minh hai shape bang nhau."
+    },
+    {
+      "baseline": "workflow",
+      "other": "wf_no_needs_info",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 65,
+      "both_fail": 0,
+      "a_pass_b_fail": 5,
+      "a_fail_b_pass": 0,
+      "p_value": 0.0625,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow vs wf_no_needs_info: p=0.0625 >= 0.05 tren 5 cap khac nhau. Chua du bang chung de noi hai shape khac nhau; day khong chung minh hai shape bang nhau."
+    },
+    {
+      "baseline": "workflow",
+      "other": "wf_no_zero_guard",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 70,
+      "both_fail": 0,
+      "a_pass_b_fail": 0,
+      "a_fail_b_pass": 0,
+      "p_value": 1.0,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow va wf_no_zero_guard: ket qua giong het tren 70 cap, khong co cap khac nhau nen khong co gi de kiem dinh."
     }
   ],
   "limits": [
