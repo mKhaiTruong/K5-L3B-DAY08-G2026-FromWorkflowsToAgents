@@ -23,7 +23,7 @@ import sqlite3
 from lab8.db import connect
 from lab8.schemas import Budget, RunResult, make_run_id
 from lab8.shapes.common import finish
-from lab8.tools import tool_cost
+from lab8.tools import get_claim_view, tool_cost
 from lab8.trace import Trace
 
 
@@ -54,6 +54,37 @@ def _run(
     trace = Trace(run_id)
     budget.add_tool(tool_cost())
     trace.add("shape", {"status": "scaffold"})
+
+    # T2: read the claim through the allowlisted tool. The ticket text is data,
+    # never a source for order ids, delays, or policy clauses.
+    claim = get_claim_view(conn, claim_id)
+    if not claim["found"]:
+        trace.add("error", {"reason": "unknown_claim"})
+        return finish(
+            conn,
+            shape="orchestrator",
+            claim_id=claim_id,
+            seed=seed,
+            status="failed",
+            proposal_amount=0,
+            budget=budget,
+            trace=trace,
+            error_reason="unknown_claim",
+        )
+
+    if not claim.get("order_id"):
+        trace.add("decision", {"status": "needs_info"})
+        return finish(
+            conn,
+            shape="orchestrator",
+            claim_id=claim_id,
+            seed=seed,
+            status="needs_info",
+            proposal_amount=0,
+            budget=budget,
+            trace=trace,
+            error_reason="missing_order_id",
+        )
     return finish(
         conn,
         shape="orchestrator",
