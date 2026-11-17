@@ -21,8 +21,9 @@ from __future__ import annotations
 import sqlite3
 
 from lab8.db import connect
+from lab8.handoff import make_handoff
 from lab8.schemas import Budget, RunResult, make_run_id
-from lab8.shapes.common import finish
+from lab8.shapes.common import finish, safe_dump
 from lab8.tools import get_claim_view, tool_cost
 from lab8.trace import Trace
 
@@ -85,6 +86,18 @@ def _run(
             trace=trace,
             error_reason="missing_order_id",
         )
+
+    # T3: handoff.v1 with read-only tools only. Facts stay empty: the investigator
+    # reads the order through its own tool, never from the parent context.
+    handoff = make_handoff(
+        request_id=f"REQ-{claim_id}",
+        claim_id=claim_id,
+        task="check_applicable_policy",
+        facts={},
+        allowed_tools=["lookup_order", "lookup_policy", "compute_compensation"],
+    )
+    trace.add("handoff", safe_dump(handoff))
+
     return finish(
         conn,
         shape="orchestrator",
