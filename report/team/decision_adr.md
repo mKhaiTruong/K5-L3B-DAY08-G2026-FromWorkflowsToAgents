@@ -73,5 +73,5 @@ Lý do: trace là **ranh giới bảo mật**, không phải log debug. Thứ g�
 MockLLM không phải model sản xuất. Latency để `unavailable`. Không sửa JSON cho đủ 0.75.
 
 - Cost là VND mô phỏng (`tool_call_vnd = 10`, token theo bảng giá giả), không phải hóa đơn API thật.
-- Chỉ có số liệu trên bộ public (14 claim). Kết quả tự kiểm trên `student_drop/` chưa có tại commit `6f4f763`.
+- Pass rate chỉ đo trên bộ public (14 claim). Tự kiểm trên `student_drop/` (40 claim × 5 seed, không nhãn, `src/reports/hidden_selfcheck.json`): workflow chạy 200/200 trial, 0 `error`, 0 `leak_suspect`, status trùng single và orchestrator trên mọi cặp (claim, seed). Đó là bằng chứng ổn định và an toàn, không phải bằng chứng đúng. Điểm hidden do grader của giảng viên chấm.
 - Workflow chỉ đúng trong phạm vi rule mà `compute_compensation` mã hóa. Gặp case ngoài rule thì nó trả `escalated` hoặc `denied` chứ không tự suy luận.

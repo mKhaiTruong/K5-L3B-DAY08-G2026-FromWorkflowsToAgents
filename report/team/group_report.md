@@ -136,7 +136,15 @@ Bảng so sánh 4 shape trên bộ public (từ `src/reports/benchmark.json`): p
 - **Swarm** có 1 miss duy nhất, `R-swarm-C-002-s55`: ở seed chia hết cho 5, swarm tin "trễ 5 ngày" ghi trong ticket thay vì 2 ngày trong order row, nên trả tiền cho claim lẽ ra bị `denied`. Một lỗi ở 1/5 seed kéo pass^5 xuống 0.929, cho thấy vì sao pass^5 khắt khe hơn pass rate.
 - **Orchestrator** đúng ngang workflow nhưng tốn gấp ~1.7 lần cost, vì investigator gọi thêm `lookup_policy` và các tool đọc qua handoff.
 - **Crash safety:** 20/20 (`src/reports/crash.json`). Ma trận student đầy đủ: 248/248 (4 shape × 62).
-- **Hidden (`student_drop/`):** chưa chạy tại commit `6f4f763`, vì bộ hidden chưa được phát.
+- **Hidden selfcheck (`student_drop/`, 40 claim × 5 seed, không nhãn), từ `src/reports/hidden_selfcheck.json`:**
+
+| Shape | Trial | `error` | `leak_suspect` | resolved / denied / escalated / needs_info | Cost tổng (VND) | Mean steps | Model call / trial |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| workflow | 200 | 0 | 0 | 90 / 95 / 10 / 5 | 5800.0 | 4.53 | 0.0 |
+| single | 200 | 0 | 0 | 90 / 95 / 10 / 5 | 6183.7 | 4.83 | 3.9 |
+| orchestrator | 200 | 0 | 0 | 90 / 95 / 10 / 5 | 9700.0 | 4.88 | 0.0 |
+
+  Bộ hidden không có nhãn nên không tính được pass rate; điểm chính thức do grader của giảng viên chấm. Ba shape cho **cùng status trên cả 200 cặp (claim, seed)**, và status của workflow không đổi theo seed ở bất kỳ claim nào. Thứ tự cost giữ nguyên như bộ public (workflow < single < orchestrator).
 
 Quyết định kiến trúc và lý do: xem `report/team/decision_adr.md`. Phiếu nghiên cứu và ablation: xem `report/team/research_card.md`.
 
@@ -163,7 +171,7 @@ MockLLM không phải model sản xuất; latency là `unavailable`. Nêu thêm 
 - **Cost là mô phỏng:** `tool_call_vnd = 10` và bảng giá token giả. Thứ hạng cost có thể đổi khi dùng giá API thật, hoặc khi tool call thật có latency.
 - **MockLLM tất định theo seed:** variance 0 của single không chứng minh model thật cũng ổn định. Một LLM thật có thể dao động giữa các lần chạy, kéo pass^5 xuống.
 - **Workflow cứng theo rule:** case nằm ngoài những gì `compute_compensation` mã hóa (vd mô tả hư hỏng bằng lời tự do) sẽ ra `escalated` / `denied`, chứ không được suy luận.
-- **Chưa có kết quả hidden** tại commit chốt `6f4f763`.
+- **Hidden chỉ tự kiểm được, không chấm được:** `student_drop/` không có nhãn. Selfcheck chỉ chứng minh 0 lỗi, 0 nghi lộ secret và 3 shape đồng thuận, không chứng minh đúng. Nếu cả 3 shape cùng sai một nhóm case thì selfcheck không phát hiện được.
 
 **Điều kiện làm kết luận thay đổi:**
 - bộ hidden cho thấy workflow fail một nhóm case mà single hoặc orchestrator pass ổn định trên cả 5 seed
