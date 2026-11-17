@@ -6,7 +6,7 @@
 - HYPOTHESIS trên LogiX: (1) workflow rules-only không thua swarm có ý nghĩa thống kê trên bộ public; (2) swarm bị prune ngẫu nhiên các lần gọi peer/parse vẫn giữ pass rate, tức là các lần gọi đó không mua thêm độ đúng; (3) bỏ bước kiểm tra trong workflow (nhánh `needs_info`, nhánh quote = 0) làm metric tụt, dù host vẫn giữ an toàn tiền.
 - Biến cố định / biến thay đổi: cố định 14 claim public × seed 11,22,33,44,55, MockLLM, bảng giá mô phỏng, SQLite mới mỗi trial; thay đổi shape (workflow, swarm, swarm_pruned, wf_no_needs_info, wf_no_zero_guard).
 - Lệnh tái lập (copy-paste được), chạy trong `src/`:
-  - `python -m lab8.benchmark --shapes workflow,swarm,swarm_pruned,wf_no_needs_info,wf_no_zero_guard --extra-shape swarm_pruned=bonus.swarm_pruned:run_claim --extra-shape wf_no_needs_info=bonus.workflow_ablate:run_claim_no_needs_info --extra-shape wf_no_zero_guard=bonus.workflow_ablate:run_claim_no_zero_guard --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/bonus_benchmark.json`
+  - `python -m lab8.benchmark --shapes workflow,swarm,swarm_pruned,wf_no_needs_info,wf_no_zero_guard --extra-shape swarm_pruned=bonus.swarm_pruned:run_claim --extra-shape wf_no_needs_info=bonus.workflow_ablate:wf_no_needs_info --extra-shape wf_no_zero_guard=bonus.workflow_ablate:wf_no_zero_guard --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/bonus_benchmark.json`
   - `python -m bonus.stats --in reports/bonus_benchmark.json --baseline workflow --out reports/bonus_ablation.json`
   - `python -m pytest -q tests/test_bonus_variants.py tests/test_bonus_stats.py`
 - File report + run id: `src/reports/bonus_benchmark.json`, `src/reports/bonus_ablation.json` (điền run id sau)
