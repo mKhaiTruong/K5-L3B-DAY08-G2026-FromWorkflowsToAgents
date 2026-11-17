@@ -118,8 +118,6 @@ Về mức tự chủ so với ba shape còn lại: A là pipeline bước cố 
 
 Kiểm tra: 62 test student của shape C pass; `src/tests/test_orchestrator_handoff.py` có 2 test (handoff trong trace ⊆ `ALLOWED_FIELDS` và `allowed_tools ⊆ READONLY_TOOLS`; trace đúng contract trên 4 nhánh `needs_info`/`escalated`/`denied`/`resolved`). Audit bảo mật toàn nhóm: 255 file trace, 0 vi phạm secret/PII, 0 file phụ sai tên.
 
-...
-
 ## 4. Kết quả
 
 Bảng so sánh 4 shape trên bộ public (từ `src/reports/benchmark.json`): pass rate, pass^5, seed min–max, variance, cost/success, mean/p95 steps. Kèm crash safety (`src/reports/crash.json`) và, nếu có, kết quả tự kiểm trên `student_drop/`.

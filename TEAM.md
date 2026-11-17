@@ -5,7 +5,7 @@
 - Tên nhóm: G2026
 - Lớp: L3B
 - Repo nhóm: `K5-L3B-DAY08-G2026-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt: https://github.com/mKhaiTruong/K5-L3B-DAY08-G2026-FromWorkflowsToAgents · nhánh nộp: `main` · commit chốt: (điền ở CP5)
+- URL repo, nhánh nộp, commit chốt: https://github.com/mKhaiTruong/K5-L3B-DAY08-G2026-FromWorkflowsToAgents · nhánh nộp: `main` · commit chốt: `6f4f763` (trùng `report/team/decision_adr.md`)
 
 ## Thành viên
 
