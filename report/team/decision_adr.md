@@ -43,19 +43,30 @@ Quyết định đảo lại khi:
 
 Trace của nhóm ghi những event nào? Field nào cố ý **không** ghi, và vì sao? Nếu trace nằm ngoài chỗ scanner quét được, đội security chứng minh thế nào là hệ thống không lộ secret?
 
-**Workflow (shape chọn)** ghi theo contract v1 (`{"run_id", "events"}`), trên **mọi** nhánh return vì tất cả đều đi qua `common.finish()`:
-- `claim`: chỉ `claim_id` và `has_order_id`
-- `lookup_order`: chỉ `visible` và `reason`
-- `quote`: `amount_vnd`, `reason`, `clause_ids`, `parts`
-- `issue_refund`: `ok`, `reason`, `conflict`
-- `decision`: `status`, `reason`
-- `crash`: điểm crash, ghi trước khi re-raise `InjectedCrash`
+Mỗi trial ghi `traces/<run_id>.json` dạng `{run_id, steps, events}`. `run_id` do `make_run_id(shape, claim_id, seed)` sinh, nên không lẫn với trace của lần chạy trước. Mọi nhánh return, kể cả `needs_info` và `escalated`, đều đi qua `finish()`, nên trace luôn tồn tại.
 
-**Orchestrator** ghi thêm `handoff`: handoff.v1 do `make_handoff` dựng, `facts={}`, chỉ có tool đọc (`lookup_order`, `lookup_policy`, `compute_compensation`). Investigator tự đọc order qua tool của nó, không nhận parent context.
+**Event theo shape** (đối chiếu với trace thật trong `src/traces/`):
+- workflow: `claim`, `lookup_order`, `quote`, `issue_refund`, `decision`, `crash`
+- single: `action`, `observation`, `decision`, `result`, `error`, `crash`
+- orchestrator: `shape`, `handoff`, `investigator`, `quote`, `decision`
+- swarm (đối chứng): `handoff`, `investigator`, `model_override`, `quote`, `decision`
 
-**Cố ý không ghi:** `ticket` (có thể chứa injection hoặc PII khách tự gõ), `parent_secret` và `raw_headers_json` (bearer token), cùng order row thô (phone, địa chỉ, tên hàng, ghi chú nội bộ). Lý do: trace là **ranh giới bảo mật**, không phải log debug. Thứ gì đã ghi vào trace là coi như đã lộ, và tóm tắt bằng LLM không được tính là redaction.
+Với workflow (shape chọn), payload chỉ gồm: `has_order_id`; `visible`/`reason` của order; `amount_vnd`/`reason`/`clause_ids` của quote; `ok`/`reason`/`conflict` của host; `status`.
 
-**Chứng minh khi scanner không quét tới:** dựa vào cấu trúc chứ không dựa vào việc quét. Shape không bao giờ đọc các cột secret: `get_claim_view` chỉ SELECT 4 cột, `lookup_order` lọc qua allowlist `ORDER_FIELDS`. Thứ không đọc vào bộ nhớ thì không thể lọt ra trace. Thêm vào đó, test `test_trace_and_stdout_have_no_forbidden_substrings` quét trace và stdout của cả 14 claim, tìm `CANARY_SECRET`, `Bearer` và các `forbid_substrings` (phone, địa chỉ, item, internal note).
+**Cố ý KHÔNG ghi:**
+- nội dung ticket, vì có thể chứa injection hoặc PII do khách tự gõ
+- claim row: `parent_secret`, `raw_headers` (bearer token)
+- order row thô: SĐT, địa chỉ, ghi chú nội bộ, tên hàng
+
+Lý do: trace là **ranh giới bảo mật**, không phải log debug. Thứ gì đã ghi vào trace là coi như đã lộ, và tóm tắt bằng LLM không được tính là redaction.
+
+**Dữ liệu chỉ vào shape qua 2 cửa có allowlist:** `get_claim_view` / `lookup_order` (lọc field theo `ORDER_FIELDS`), và `make_handoff` / `sanitize`. Cửa thứ hai ném `HandoffError` nếu handoff còn chứa `CANARY_SECRET_`, `parent_secret`, `raw_headers`, hoặc cấp tool ghi.
+
+**Bằng chứng:**
+- Quét 287 file trong `src/traces/` (ma trận student 4 shape, benchmark, test bổ sung), tìm `CANARY_SECRET_`, `parent_secret`, `raw_headers`, `Bearer`, SĐT `0901…`, địa chỉ, `CANARY_INTERNAL`, `SECRET_ITEM`: **0 file vi phạm**.
+- Test `test_trace_and_stdout_have_no_forbidden_substrings` (workflow, 14 claim) và `test_orchestrator_handoff.py` (handoff ⊆ `ALLOWED_FIELDS`, `facts == {}`) giữ kết quả này trên mọi lần chạy.
+
+**Nếu trace nằm ngoài chỗ scanner quét được:** chứng minh bằng **cấu trúc**, không dựa vào việc quét. Shape không bao giờ đọc các cột secret, vì view chỉ SELECT 4 cột và order đi qua allowlist. Handoff thì bị `sanitize` chặn trước khi tới investigator. Thứ không vào bộ nhớ của shape thì không thể lọt ra trace hay stdout.
 
 ## Giới hạn
 

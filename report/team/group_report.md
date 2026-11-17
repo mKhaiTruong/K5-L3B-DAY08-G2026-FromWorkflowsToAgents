@@ -158,8 +158,30 @@ Chi tiết đóng góp của từng thành viên nằm trong `TEAM.md` (bảng �
 
 MockLLM không phải model sản xuất; latency là `unavailable`. Nêu thêm giới hạn của nhóm và điều kiện làm kết luận thay đổi.
 
-...
+**Hạn chế:**
+- **Bộ public nhỏ:** 14 claim × 5 seed. Ba shape nhóm viết đều đạt 1.000, nên benchmark **không phân biệt được** độ đúng giữa chúng. Quyết định chọn workflow dựa vào cost và bề mặt tấn công, chưa dựa vào khác biệt pass.
+- **Cost là mô phỏng:** `tool_call_vnd = 10` và bảng giá token giả. Thứ hạng cost có thể đổi khi dùng giá API thật, hoặc khi tool call thật có latency.
+- **MockLLM tất định theo seed:** variance 0 của single không chứng minh model thật cũng ổn định. Một LLM thật có thể dao động giữa các lần chạy, kéo pass^5 xuống.
+- **Workflow cứng theo rule:** case nằm ngoài những gì `compute_compensation` mã hóa (vd mô tả hư hỏng bằng lời tự do) sẽ ra `escalated` / `denied`, chứ không được suy luận.
+- **Chưa có kết quả hidden** tại commit chốt `6f4f763`.
+
+**Điều kiện làm kết luận thay đổi:**
+- bộ hidden cho thấy workflow fail một nhóm case mà single hoặc orchestrator pass ổn định trên cả 5 seed
+- claim thực tế cần hiểu ngôn ngữ tự do, khi đó agent đọc và đề xuất có lợi thế, với điều kiện host vẫn giữ quyền ghi tiền
+- giá model thật đủ rẻ để chênh lệch cost/success (27.86 so với 29.74 VND) không còn đáng kể
+
+**Hướng cải thiện:**
+- Thêm claim public cho các nhóm của hidden (homoglyph, principal lẫn, policy hết hiệu lực) để benchmark phân biệt được các shape.
+- Chạy với model thật (ví dụ OpenAI) ở chế độ chỉ đọc cho single, đo variance thật qua nhiều seed.
+- Tự động hóa việc quét trace và stdout tìm token cấm thành một bước CI (GitHub Actions) chạy trên mỗi PR.
 
 ## 8. Tài liệu tham khảo
 
-...
+- Đề bài và quy định: [README.md](../../README.md), [CHECKPOINTS.md](../../CHECKPOINTS.md), [RUBRIC.md](../../RUBRIC.md), [RULES.md](../../RULES.md), [SUBMISSION.md](../../SUBMISSION.md).
+- Kiến trúc và ranh giới code / model: [docs/architecture.md](../../docs/architecture.md).
+- Luật nghiệp vụ bồi thường: [docs/business_rules.md](../../docs/business_rules.md).
+- Contract `RunResult`, trace v1, handoff.v1: [docs/contracts.md](../../docs/contracts.md).
+- Công thức pass rate, pass^5, seed variance, cost/success: [docs/metrics.md](../../docs/metrics.md).
+- Shape tham chiếu swarm và điểm yếu `REFERENCE_WEAKNESS`: `src/lab8/shapes/swarm_reference.py`.
+- Số liệu: `src/reports/benchmark.json`, `src/reports/crash.json`, `src/reports/ablation_r2.json`.
+- Quyết định và nghiên cứu: [decision_adr.md](decision_adr.md), [research_card.md](research_card.md).
