@@ -11,9 +11,9 @@
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 |   Trương Đặng Minh Khuê     |  2A202603785    |   minhkhai0402@gmail.com    |   https://github.com/mKhaiTruong     |  P1 (lead) workflow + integration      |
-|   2 |   Trịnh Tuấn Phong     |   2A202603781   |     it96cokhibachkhoaphong@gmail.com  |   ?     |  P3 orchestrator + handoff/security       |
-|   3 |   Triệu Quốc Khánh     |    ?  |      ? |   ?     |     P2 single (ReAct) + research    |
+|   1 |   Trương Đặng Minh Khuê     |  2A202603785    |   26ai.khuetdm@vinuni.edu.vn    |   https://github.com/mKhaiTruong     |  P1 (lead) workflow + integration      |
+|   2 |   Trịnh Tuấn Phong     |   2A202603781   |   26ai.phongtt2@vinuni.edu.vn   |   https://github.com/trinhtuanphong123   |  P3 orchestrator + handoff/security       |
+|   3 |   Triệu Quốc Khánh     |   2A202603749   |   26ai.khanhtq4@vinuni.edu.vn   |   https://github.com/qockhah253   |     P2 single (ReAct) + research    |
 
 Gợi ý chia vai:
 
@@ -27,6 +27,8 @@ Gợi ý chia vai:
 | Người | Vai | Commit | Test đã thêm hoặc sửa |
 | --- | --- | --- | --- |
 | Trương Đặng Minh Khuê | P1 (lead) workflow + integration | `7329935` workflow shape (CP2), `721bccd` crash_at (CP3), `2c6606a` crash.json 20/20 (CP4) | `tests/test_workflow_extra.py`: `dc2f7d1` (CP2), `f0f30d5` (CP3), `4f88de1` (CP4) |
+| Triệu Quốc Khánh | P2 single (ReAct) + research | `794f84e` shape B (CP2), `ffe7ca3` research card R2 + ablation (CP5) | `tests/test_single_extra.py`: `732c010` (CP2), `41ccea9` (CP4 approval), `c735ba6` (CP3 T11/T12) |
+| Trịnh Tuấn Phong | P3 orchestrator + handoff/security | `75bb4bd` handoff.v1, `11e4d10` quote + issue_refund (CP2/CP3, PR #8) | `tests/test_orchestrator_handoff.py`: `fba76f5` |
 
 ## Cá nhân
 
