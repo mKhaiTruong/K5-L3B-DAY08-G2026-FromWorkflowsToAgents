@@ -39,10 +39,11 @@ Quyết định kỹ thuật:
 
 ## 4. Bằng chứng
 
-- PR đã merge: #3 (shape B), #4 (test CP4, T11, T12), #6 (research card).
+- PR đã merge: #3 (shape B), #4 (test CP4, T11, T12), #6 (research card), #7 (mục 3.2 và báo cáo cá nhân).
 - `python -m pytest -q -m student -o addopts= -k "single and not workflow and not orchestrator and not swarm"`: 62 passed.
 - `python -m pytest -q tests\test_single_extra.py`: 19 passed.
 - Ablation: `python -m lab8.benchmark --shapes swarm,single --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/ablation_r2.json`. Swarm pass rate 0,986, pass^5 0,929; single 1,000 và 1,000. Trial fail duy nhất của swarm: run id `R-swarm-C-002-s55`; cùng claim và seed của single: `R-single-C-002-s55` (denied, đúng).
+- Hidden selfcheck (`src/reports/hidden_selfcheck.json`, do Khải chạy trên `student_drop/`: `python -m lab8.benchmark --shapes workflow,single,orchestrator --cases student_drop/hidden_claims.jsonl --world student_drop/hidden_world_state.json --out reports/hidden_selfcheck.json`): single 200 trial (40 claim × 5 seed), 0 error, 0 `leak_suspect`; `status` của single trùng workflow và orchestrator trên 200/200 cặp (claim, seed). Bộ này không có nhãn nên không ra pass rate; điểm hidden chính thức do grader của giảng viên chấm.
 
 ## 5. Công cụ AI đã dùng
 
@@ -52,5 +53,5 @@ Quyết định kỹ thuật:
 
 ## 6. Tự đánh giá
 
-- Hoàn thành phần việc CP2 đến CP4 cho shape B và phần research card của CP5; các PR #3, #4, #6 đã được duyệt và merge.
-- Hạn chế: `decide` hiện chỉ dùng `lookup_order` và `compute_compensation`, chưa dùng `lookup_refund_history` hay `lookup_policy` vì host đã tự cap theo đơn và `compute_compensation` đã lọc policy hiệu lực. Mới kiểm trên 14 claim public, chưa chạy bộ `student_drop/`.
+- Hoàn thành phần việc CP2 đến CP4 cho shape B và phần research card của CP5; các PR #3, #4, #6, #7 đã được duyệt và merge.
+- Hạn chế: `decide` hiện chỉ dùng `lookup_order` và `compute_compensation`, chưa dùng `lookup_refund_history` hay `lookup_policy` vì host đã tự cap theo đơn và `compute_compensation` đã lọc policy hiệu lực. Đã kiểm trên 14 claim public và tự kiểm trên bộ hidden (mục 4); chưa có pass rate hidden vì bộ đó không có nhãn.
