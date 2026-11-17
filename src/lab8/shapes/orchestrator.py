@@ -21,11 +21,12 @@ from __future__ import annotations
 import sqlite3
 
 from lab8.db import connect
+from lab8.durability import issue_refund
 from lab8.handoff import make_handoff
 from lab8.runtime import run_readonly_investigators
 from lab8.schemas import Budget, RunResult, make_run_id
 from lab8.shapes.common import finish, safe_dump
-from lab8.tools import get_claim_view, tool_cost
+from lab8.tools import compute_compensation, get_claim_view, tool_cost
 from lab8.trace import Trace
 
 
@@ -55,7 +56,7 @@ def _run(
     run_id = make_run_id("orchestrator", claim_id, seed)
     trace = Trace(run_id)
     budget.add_tool(tool_cost())
-    trace.add("shape", {"status": "scaffold"})
+    trace.add("shape", {"status": "start"})
 
     # T2: read the claim through the allowlisted tool. The ticket text is data,
     # never a source for order ids, delays, or policy clauses.
@@ -127,14 +128,48 @@ def _run(
             error_reason=order_view.get("reason"),
         )
 
+    # T5: money comes from code. The ticket never supplies the delay or the clause.
+    order = order_view.get("order") or {}
+    quote_payload = investigated["tools"].get("compute_compensation") or {}
+    if not quote_payload and order:
+        # Defensive: only happens if the allowlist order was edited.
+        budget.add_tool(tool_cost())
+        quote_payload = compute_compensation(conn, order)
+    quote = int(quote_payload.get("amount_vnd") or 0)
+    trace.add("quote", quote_payload)
+
+    if quote <= 0:
+        trace.add("decision", {"status": "denied", "reason": quote_payload.get("reason")})
+        return finish(
+            conn,
+            shape="orchestrator",
+            claim_id=claim_id,
+            seed=seed,
+            status="denied",
+            proposal_amount=0,
+            budget=budget,
+            trace=trace,
+            error_reason=quote_payload.get("reason"),
+        )
+
+    # T6: the host is the only writer. Always call it with the FULL quote: the host
+    # subtracts earlier refunds on the same order (T13, T14).
+    outcome = issue_refund(conn, claim_id, quote, crash_at=crash_at)
+    if outcome["conflict"]:
+        status, reason = "failed", outcome["reason"]
+    elif not outcome["ok"]:
+        status, reason = "denied", outcome["reason"]
+    else:
+        status, reason = "resolved", None
+    trace.add("decision", {"status": status, "reason": outcome["reason"]})
     return finish(
         conn,
         shape="orchestrator",
         claim_id=claim_id,
         seed=seed,
-        status="failed",
-        proposal_amount=0,
+        status=status,
+        proposal_amount=quote,
         budget=budget,
         trace=trace,
-        error_reason="not_implemented",
+        error_reason=reason,
     )
