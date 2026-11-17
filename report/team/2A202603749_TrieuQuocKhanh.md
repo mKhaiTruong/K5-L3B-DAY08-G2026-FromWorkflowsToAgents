@@ -43,7 +43,7 @@ Quyết định kỹ thuật:
 - `python -m pytest -q -m student -o addopts= -k "single and not workflow and not orchestrator and not swarm"`: 62 passed.
 - `python -m pytest -q tests\test_single_extra.py`: 19 passed.
 - Ablation: `python -m lab8.benchmark --shapes swarm,single --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/ablation_r2.json`. Swarm pass rate 0,986, pass^5 0,929; single 1,000 và 1,000. Trial fail duy nhất của swarm: run id `R-swarm-C-002-s55`; cùng claim và seed của single: `R-single-C-002-s55` (denied, đúng).
-- Hidden selfcheck (`src/reports/hidden_selfcheck.json`, do Khải chạy trên `student_drop/`: `python -m lab8.benchmark --shapes workflow,single,orchestrator --cases student_drop/hidden_claims.jsonl --world student_drop/hidden_world_state.json --out reports/hidden_selfcheck.json`): single 200 trial (40 claim × 5 seed), 0 error, 0 `leak_suspect`; `status` của single trùng workflow và orchestrator trên 200/200 cặp (claim, seed). Bộ này không có nhãn nên không ra pass rate; điểm hidden chính thức do grader của giảng viên chấm.
+- Hidden selfcheck (`src/reports/hidden_selfcheck.json`, do Khuê (P1) chạy trên `student_drop/`: `python -m lab8.benchmark --shapes workflow,single,orchestrator --cases student_drop/hidden_claims.jsonl --world student_drop/hidden_world_state.json --out reports/hidden_selfcheck.json`): single 200 trial (40 claim × 5 seed), 0 error, 0 `leak_suspect`; `status` của single trùng workflow và orchestrator trên 200/200 cặp (claim, seed). Bộ này không có nhãn nên không ra pass rate; điểm hidden chính thức do grader của giảng viên chấm.
 
 ## 5. Công cụ AI đã dùng
 
