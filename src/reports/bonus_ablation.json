@@ -1,0 +1,138 @@
+{
+  "source": "bonus.stats",
+  "baseline": "workflow",
+  "method": {
+    "ci": "bootstrap percentile 95%, 10000 lan, resample theo claim_id, seed=20261117",
+    "paired_test": "McNemar exact hai phia tren cap (claim_id, seed)",
+    "alpha": 0.05
+  },
+  "controlled_variables": {
+    "as_of": "2026-11-15",
+    "seeds": [
+      11,
+      22,
+      33,
+      44,
+      55
+    ],
+    "claim_ids": [
+      "C-001",
+      "C-002",
+      "C-003",
+      "C-004",
+      "C-005",
+      "C-006",
+      "C-007",
+      "C-008",
+      "C-009",
+      "C-010",
+      "C-011",
+      "C-012",
+      "C-013",
+      "C-014"
+    ],
+    "pricing": {
+      "simulated": true,
+      "currency": "VND",
+      "input_per_1k_tokens_vnd": 20,
+      "output_per_1k_tokens_vnd": 80,
+      "tool_call_vnd": 10
+    },
+    "model_backend": "MockLLM",
+    "latency": "unavailable",
+    "isolation": "fresh_sqlite_per_trial"
+  },
+  "by_shape": {
+    "workflow": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 70,
+      "pass_rate": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "ci_degenerate": true
+    },
+    "orchestrator": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 70,
+      "pass_rate": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "ci_degenerate": true
+    },
+    "single": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 70,
+      "pass_rate": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "ci_degenerate": true
+    },
+    "swarm": {
+      "trials": 70,
+      "claims": 14,
+      "passes": 69,
+      "pass_rate": 0.9857142857142858,
+      "ci95": [
+        0.9571428571428572,
+        1.0
+      ],
+      "ci_degenerate": false
+    }
+  },
+  "comparisons": [
+    {
+      "baseline": "workflow",
+      "other": "orchestrator",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 70,
+      "both_fail": 0,
+      "a_pass_b_fail": 0,
+      "a_fail_b_pass": 0,
+      "p_value": 1.0,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow va orchestrator: ket qua giong het tren 70 cap, khong co cap khac nhau nen khong co gi de kiem dinh."
+    },
+    {
+      "baseline": "workflow",
+      "other": "single",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 70,
+      "both_fail": 0,
+      "a_pass_b_fail": 0,
+      "a_fail_b_pass": 0,
+      "p_value": 1.0,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow va single: ket qua giong het tren 70 cap, khong co cap khac nhau nen khong co gi de kiem dinh."
+    },
+    {
+      "baseline": "workflow",
+      "other": "swarm",
+      "pairs": 70,
+      "unpaired": 0,
+      "both_pass": 69,
+      "both_fail": 0,
+      "a_pass_b_fail": 1,
+      "a_fail_b_pass": 0,
+      "p_value": 1.0,
+      "test": "mcnemar_exact_two_sided",
+      "conclusion": "workflow vs swarm: p=1.0000 >= 0.05 tren 1 cap khac nhau. Chua du bang chung de noi hai shape khac nhau; day khong chung minh hai shape bang nhau."
+    }
+  ],
+  "limits": [
+    "Bo claim nho va co dinh; CI va p-value chi noi ve bo claim nay.",
+    "Pass rate gan 1.0: bootstrap co the cho CI suy bien (ci_degenerate=true), khong co nghia la ty le that bang 1.",
+    "5 seed cua mot claim khong doc lap; McNemar tren cap (claim, seed) co the lac quan hon bang chung that.",
+    "Model la MockLLM, khong suy ra cho model that."
+  ]
+}
