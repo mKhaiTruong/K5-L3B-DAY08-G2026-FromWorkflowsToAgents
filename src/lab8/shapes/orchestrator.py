@@ -18,8 +18,13 @@ ones. `lab8.trace.Trace` does this; your own tracer is fine if it matches.
 
 from __future__ import annotations
 
-from lab8.schemas import RunResult
-from lab8.shapes.common import not_implemented
+import sqlite3
+
+from lab8.db import connect
+from lab8.schemas import Budget, RunResult, make_run_id
+from lab8.shapes.common import finish
+from lab8.tools import tool_cost
+from lab8.trace import Trace
 
 
 def run_claim(
@@ -29,7 +34,34 @@ def run_claim(
     store_path: str,
     crash_at: str | None = None,
 ) -> RunResult:
-    # TODO CP2 (student): thay stub này bằng shape orchestrator theo các bước ở docstring đầu file.
-    # TODO CP3 (student): truyền crash_at vào durability.issue_refund, không bắt InjectedCrash.
-    del store_path, crash_at
-    return not_implemented("orchestrator", claim_id, seed)
+    conn = connect(store_path)
+    try:
+        return _run(conn, claim_id, seed=seed, crash_at=crash_at)
+    finally:
+        conn.close()
+
+
+def _run(
+    conn: sqlite3.Connection,
+    claim_id: str,
+    *,
+    seed: int,
+    crash_at: str | None,
+) -> RunResult:
+    """Scaffold T1: budget, run_id, trace, tool cost. T2-T7 fills the decision branches."""
+    budget = Budget()
+    run_id = make_run_id("orchestrator", claim_id, seed)
+    trace = Trace(run_id)
+    budget.add_tool(tool_cost())
+    trace.add("shape", {"status": "scaffold"})
+    return finish(
+        conn,
+        shape="orchestrator",
+        claim_id=claim_id,
+        seed=seed,
+        status="failed",
+        proposal_amount=0,
+        budget=budget,
+        trace=trace,
+        error_reason="not_implemented",
+    )
