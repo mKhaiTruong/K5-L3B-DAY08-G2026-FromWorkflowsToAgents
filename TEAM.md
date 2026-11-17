@@ -26,7 +26,7 @@ Gợi ý chia vai:
 
 | Người | Vai | Commit | Test đã thêm hoặc sửa |
 | --- | --- | --- | --- |
-| Trương Đặng Minh Khuê | P1 (lead) workflow + integration | `ba27950` (CP1: plan + vai) | (CP2: `tests/test_workflow_extra.py`) |
+| Trương Đặng Minh Khuê | P1 (lead) workflow + integration | `7329935` workflow shape (CP2), `721bccd` crash_at (CP3), `2c6606a` crash.json 20/20 (CP4) | `tests/test_workflow_extra.py`: `dc2f7d1` (CP2), `f0f30d5` (CP3), `4f88de1` (CP4) |
 
 ## Cá nhân
 
