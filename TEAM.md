@@ -2,17 +2,18 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm:
-- Lớp: L3A
-- Repo nhóm: `K5-L3A-DAY08-TenNhom-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt:
+- Tên nhóm: G2026
+- Lớp: L3B
+- Repo nhóm: `K5-L3B-DAY08-G2026-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
+- URL repo, nhánh nộp, commit chốt: https://github.com/mKhaiTruong/K5-L3B-DAY08-G2026-FromWorkflowsToAgents · nhánh nộp: `main` · commit chốt: (điền ở CP5)
 
 ## Thành viên
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 |        |      |       |        |         |
-|   2 |        |      |       |        |         |
+|   1 |   Trương Đặng Minh Khuê     |  2A202603785    |   minhkhai0402@gmail.com    |   https://github.com/mKhaiTruong     |  P1 (lead) workflow + integration      |
+|   2 |   Trịnh Tuấn Phong     |   2A202603781   |     it96cokhibachkhoaphong@gmail.com  |   ?     |  P3 orchestrator + handoff/security       |
+|   3 |   Triệu Quốc Khánh     |    ?  |      ? |   ?     |     P2 single (ReAct) + research    |
 
 Gợi ý chia vai:
 
@@ -25,7 +26,7 @@ Gợi ý chia vai:
 
 | Người | Vai | Commit | Test đã thêm hoặc sửa |
 | --- | --- | --- | --- |
-| | | | |
+| Trương Đặng Minh Khuê | P1 (lead) workflow + integration | `ba27950` (CP1: plan + vai) | (CP2: `tests/test_workflow_extra.py`) |
 
 ## Cá nhân
 
